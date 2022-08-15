@@ -33,7 +33,7 @@ func (h UserHandler) Users(c *fiber.Ctx) error {
 func (h UserHandler) Retrieve(c *fiber.Ctx) error {
 	userId, err := strconv.ParseUint(c.Params("id"), 10, 64)
 	if err != nil {
-		return c.Status(fiber.StatusNotFound).JSON(err)
+		return c.Status(fiber.StatusBadRequest).JSON(err)
 	}
 	user, err := h.userService.RetrieveById(userId)
 	if err != nil {
@@ -55,7 +55,7 @@ func (h UserHandler) Create(c *fiber.Ctx) error {
 
 	err := h.userService.Create(createRequest)
 	if err != nil {
-		return c.Status(fiber.StatusNotFound).JSON(err)
+		return c.Status(fiber.StatusBadRequest).JSON(err)
 	}
 	return c.Status(fiber.StatusAccepted).JSON(createRequest.ToResponse())
 }
@@ -68,17 +68,17 @@ func (h UserHandler) Update(c *fiber.Ctx) error {
 
 	userId, err := strconv.ParseUint(c.Params("id"), 10, 64)
 	if err != nil {
-		return c.Status(fiber.StatusNotFound).JSON(err)
+		return c.Status(fiber.StatusBadRequest).JSON(err)
 	}
 
 	user, err := h.userService.RetrieveById(userId)
 	if err != nil {
-		return c.Status(fiber.StatusNotFound).JSON(err)
+		return c.Status(fiber.StatusBadRequest).JSON(err)
 	}
 
 	err = h.userService.Update(&user, *updateRequest)
 	if err != nil {
-		return c.Status(fiber.StatusNotAcceptable).JSON(err)
+		return c.Status(fiber.StatusBadRequest).JSON(err)
 	}
 
 	return c.Status(fiber.StatusAccepted).JSON(user.ToResponse())
@@ -92,7 +92,7 @@ func (h UserHandler) Delete(c *fiber.Ctx) error {
 
 	err = h.userService.Delete(userId)
 	if err != nil {
-		return c.Status(fiber.StatusNotAcceptable).JSON(err)
+		return c.Status(fiber.StatusBadRequest).JSON(err)
 	}
 
 	return c.Status(fiber.StatusAccepted).Send(nil)
