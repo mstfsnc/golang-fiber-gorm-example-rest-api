@@ -2,18 +2,17 @@ package main
 
 import (
 	"fmt"
-	"github.com/gofiber/adaptor/v2"
-	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/logger"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
 	"log"
 	"sample-app/internal/handlers"
 	"sample-app/internal/repositories"
 	"sample-app/internal/services"
 	"sample-app/pkg/config"
 	"sample-app/pkg/metric"
+
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/logger"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
 func main() {
@@ -36,15 +35,13 @@ func main() {
 
 	userRepository := repositories.NewUserRepository(dbConn, metric)
 	userService := services.NewUserService(userRepository)
-	userHandler := handlers.NewUserHandler(userService)
+	authHandler := handlers.NewAuthHandler(userService)
 
 	app := fiber.New()
 	app.Use(logger.New())
 
-	userHandler.SetRoute(app)
-
-	metrics := adaptor.HTTPHandler(promhttp.Handler())
-	app.Get("/metrics", metrics)
+	authHandler.SetRoute(app)
+	metric.SetRoute(app)
 
 	log.Fatal(app.Listen(config.Get("APP_PORT")))
 }

@@ -2,8 +2,11 @@ package metric
 
 import (
 	"fmt"
+	"github.com/gofiber/adaptor/v2"
+	"github.com/gofiber/fiber/v2"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"time"
 )
 
@@ -38,11 +41,14 @@ func (m Metric) NewSummary(name string) prometheus.Summary {
 		Objectives: map[float64]float64{
 			0.5:   0.05,
 			0.75:  0.025,
-			0.95:  0.005,
-			0.98:  0.002,
 			0.99:  0.001,
 			0.999: 0.0001,
 		},
 	})
 	return m.Summaries[name]
+}
+
+func (m Metric) SetRoute(app *fiber.App) {
+	metrics := adaptor.HTTPHandler(promhttp.Handler())
+	app.Get("/metrics", metrics)
 }

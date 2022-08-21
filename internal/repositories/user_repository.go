@@ -14,35 +14,22 @@ type UserRepository struct {
 	metric *metric.Metric
 }
 
-func NewUserRepository(db *gorm.DB, metric *metric.Metric) UserRepository {
-	return UserRepository{
+func NewUserRepository(db *gorm.DB, metric *metric.Metric) *UserRepository {
+	return &UserRepository{
 		db:     db,
 		metric: metric,
 	}
 }
 
-func (r UserRepository) All() ([]models.User, error) {
-	defer func(begin time.Time) {
-		r.metric.Observe("UserRepository_All", begin)
-	}(time.Now())
-
-	var users []models.User
-	if err := r.db.Limit(10).Find(&users).Error; err != nil {
-		return nil, err
-	}
-	return users, nil
-}
-
-func (r UserRepository) Retrieve(id uint64) (models.User, error) {
+func (r UserRepository) Retrieve(user *models.User) error {
 	defer func(begin time.Time) {
 		r.metric.Observe("UserRepository_Retrieve", begin)
 	}(time.Now())
 
-	var user models.User
-	if err := r.db.First(&user, id).Error; err != nil {
-		return user, err
+	if err := r.db.Where(&user).First(&user).Error; err != nil {
+		return err
 	}
-	return user, nil
+	return nil
 }
 
 func (r UserRepository) Create(user *models.User) error {

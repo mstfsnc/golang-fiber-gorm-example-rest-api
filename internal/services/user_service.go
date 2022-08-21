@@ -6,21 +6,17 @@ import (
 )
 
 type UserService struct {
-	userRepository repositories.UserRepository
+	userRepository *repositories.UserRepository
 }
 
-func NewUserService(userRepository repositories.UserRepository) UserService {
-	return UserService{
+func NewUserService(userRepository *repositories.UserRepository) *UserService {
+	return &UserService{
 		userRepository: userRepository,
 	}
 }
 
-func (s UserService) All() ([]models.User, error) {
-	return s.userRepository.All()
-}
-
-func (s UserService) RetrieveById(id uint64) (models.User, error) {
-	return s.userRepository.Retrieve(id)
+func (s UserService) Retrieve(user *models.User) error {
+	return s.userRepository.Retrieve(user)
 }
 
 func (s UserService) Create(user *models.User) error {
